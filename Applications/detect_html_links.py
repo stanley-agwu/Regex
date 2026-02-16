@@ -110,3 +110,19 @@ def main():
 if __name__ == "__main__":
     main()
 
+def detect_links():
+    n = int(sys.stdin.readline().strip())
+    html = "\n".join(sys.stdin.readline().rstrip("\n") for _ in range(n))
+
+    # 1) capture href + inner content (supports " or ' quotes, supports nested tags)
+    a_pat = re.compile(r'<a\b[^>]*\bhref\s*=\s*(["\'])(.*?)\1[^>]*>(.*?)</a>', re.I | re.S)
+
+    # 2) remove any tags from inside anchor to get visible text
+    tag_pat = re.compile(r'<[^>]+>')
+
+    for _, href, inner in a_pat.findall(html):
+        text = tag_pat.sub('', inner)          # strip nested tags
+        text = re.sub(r'\s+', ' ', text).strip()  # normalize whitespace + trim
+        href = href.strip()
+        print(f"{href},{text}")
+
